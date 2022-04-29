@@ -14,7 +14,11 @@
 
 ```go
 go get -v -u github.com/dtapps/gocache
+```
 
+#### 导入
+
+```go
 import (
     "github.com/dtapps/gocache"
 )
