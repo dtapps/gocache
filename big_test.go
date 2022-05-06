@@ -7,27 +7,29 @@ import (
 
 func TestBig(t *testing.T) {
 
-	newBig := NewBig(time.Minute * 30)
+	newCache := NewBig(time.Minute * 30)
 
 	// 字符串
-	newBig.Set("key1", "测试Big插入数据1")
-	key1, _ := newBig.Get("key1")
+	newCache.Set("key1", "测试Big插入数据 1")
+	key1, _ := newCache.Get("key1")
 	t.Logf("key1：%+v", key1)
 
 	// 结构体
 	type name struct {
 		Test string `json:"test"`
 	}
-	newBig.Set("key2", name{"测试Big插入数据2"})
-	key2, _ := newBig.Get("key2")
+	newCache.Set("key2", name{"测试Big插入数据 2"})
+	key2, _ := newCache.Get("key2")
 	t.Logf("key2：%+v", key2)
+	t.Logf("key2：%+v", key2.(name))
 
 	// 缓存组件
-	newBigCache := newBig.NewCache()
-	newBigCache.GetterInterface = func() interface{} {
-		return name{"测试Big插入数据3"}
+	newCacheCache := newCache.NewCache()
+	newCacheCache.GetterInterface = func() interface{} {
+		return name{"测试Big插入数据 3"}
 	}
-	key3 := newBigCache.GetInterface("key3")
+	key3 := newCacheCache.GetInterface("key3")
 	t.Logf("key3：%+v", key3)
+	t.Logf("key3：%+v", key3.(name))
 
 }

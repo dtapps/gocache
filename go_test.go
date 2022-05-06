@@ -7,27 +7,29 @@ import (
 
 func TestGo(t *testing.T) {
 
-	newGo := NewGo(5*time.Minute, 10*time.Minute)
+	newCache := NewGo(5*time.Minute, 10*time.Minute)
 
 	// 字符串
-	newGo.SetDefault("key1", "测试Go插入数据1")
-	key1, _ := newGo.Get("key1")
+	newCache.SetDefault("key1", "测试Go插入数据 1")
+	key1, _ := newCache.Get("key1")
 	t.Logf("key1：%+v", key1)
 
 	// 结构体
 	type name struct {
 		Test string `json:"test"`
 	}
-	newGo.SetDefault("key2", name{"测试Go插入数据2"})
-	key2, _ := newGo.Get("key2")
+	newCache.SetDefault("key2", name{"测试Go插入数据 2"})
+	key2, _ := newCache.Get("key2")
 	t.Logf("key2：%+v", key2)
+	t.Logf("key2：%+v", key2.(name))
 
 	// 缓存组件
-	bigCache := newGo.NewCache(5 * time.Minute)
-	bigCache.GetterInterface = func() interface{} {
-		return name{"测试Go插入数据3"}
+	newCacheCache := newCache.NewCache(5 * time.Minute)
+	newCacheCache.GetterInterface = func() interface{} {
+		return name{"测试Go插入数据 3"}
 	}
-	key3 := bigCache.GetInterface("key3")
+	key3 := newCacheCache.GetInterface("key3")
 	t.Logf("key3：%+v", key3)
+	t.Logf("key3：%+v", key3.(name))
 
 }
