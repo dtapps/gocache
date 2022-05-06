@@ -1,6 +1,7 @@
 package gocache
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -14,39 +15,43 @@ type RedisCache struct {
 
 // NewCache 返回Redis缓存实例
 func (r *Redis) NewCache(expiration time.Duration) *RedisCache {
-	return &RedisCache{
-		db:         r,          // 操作类
-		expiration: expiration, // 过期时间
-	}
+	return &RedisCache{db: r, expiration: expiration}
 }
 
-func (rc *RedisCache) GetInterface(key string) (ret string) {
-
-	f := func() interface{} {
-		return rc.GetterInterface()
-	}
-
-	ret, err := rc.db.Get(key)
-
-	if err != nil {
-		rc.db.Set(key, f, rc.expiration)
-		ret, _ = rc.db.Get(key)
-	}
-
-	return
-}
-
+// GetString 缓存操作
 func (rc *RedisCache) GetString(key string) (ret string) {
 
 	f := func() string {
 		return rc.GetterString()
 	}
 
+	// 如果不存在，则调用GetterString
 	ret, err := rc.db.Get(key)
 	if err != nil {
-		rc.db.Set(key, f, rc.expiration)
-		ret = f()
+		rc.db.Set(key, f(), rc.expiration)
+		ret, _ = rc.db.Get(key)
 	}
+
+	return
+}
+
+// GetInterface 缓存操作
+func (rc *RedisCache) GetInterface(key string, result interface{}) {
+
+	f := func() string {
+		marshal, _ := json.Marshal(rc.GetterInterface())
+		return string(marshal)
+	}
+
+	// 如果不存在，则调用GetterInterface
+	ret, err := rc.db.Get(key)
+
+	if err != nil {
+		rc.db.Set(key, f(), rc.expiration)
+		ret, _ = rc.db.Get(key)
+	}
+
+	err = json.Unmarshal([]byte(ret), result)
 
 	return
 }

@@ -44,14 +44,14 @@ func (mc *MemcachedCache) GetInterface(key string, result interface{}) {
 	}
 
 	// 如果不存在，则调用GetterInterface
-	get, err := mc.db.Get(key)
+	ret, err := mc.db.Get(key)
 
 	if err == memcache.ErrCacheMiss {
 		mc.db.Set(key, []byte(f()))
-		get, _ = mc.db.Get(key)
+		ret, _ = mc.db.Get(key)
 	}
 
-	err = json.Unmarshal([]byte(get), result)
+	err = json.Unmarshal([]byte(ret), result)
 
 	return
 }
