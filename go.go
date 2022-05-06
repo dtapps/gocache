@@ -12,14 +12,10 @@ type Go struct {
 	clear      time.Duration // 清理过期数据
 }
 
-// NewGo 返回GoCache实例
+// NewGo 实例化
 func NewGo(expiration, clear time.Duration) *Go {
 	c := cache.New(expiration, clear)
-	return &Go{
-		goCache:    c,
-		expiration: expiration,
-		clear:      clear,
-	}
+	return &Go{goCache: c, expiration: expiration, clear: clear}
 }
 
 // Get 获取单个数据

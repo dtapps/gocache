@@ -13,13 +13,10 @@ type Big struct {
 	expiration time.Duration      // 默认过期时间
 }
 
-// NewBig 返回BigCache实例
+// NewBig 实例化
 func NewBig(expiration time.Duration) *Big {
 	c, _ := bigcache.NewBigCache(bigcache.DefaultConfig(expiration))
-	return &Big{
-		bigCache:   c,
-		expiration: expiration,
-	}
+	return &Big{bigCache: c, expiration: expiration}
 }
 
 // Get 获取单个数据

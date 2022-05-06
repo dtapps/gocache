@@ -10,19 +10,19 @@ type BigCache struct {
 	GetterInterface GttInterfaceFunc // 不存在的操作
 }
 
-// NewCache 返回BigCache实例
+// NewCache 实例化
 func (b *Big) NewCache() *BigCache {
-	return &BigCache{
-		db: b, // 操作类
-	}
+	return &BigCache{db: b}
 }
 
+// GetInterface 缓存操作
 func (gc *BigCache) GetInterface(key string) (ret interface{}) {
 
 	f := func() interface{} {
 		return gc.GetterInterface()
 	}
 
+	// 如果不存在，则调用GetterInterface
 	ret, err := gc.db.Get(key)
 
 	if err == bigcache.ErrEntryNotFound {

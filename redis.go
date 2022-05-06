@@ -13,13 +13,9 @@ type Redis struct {
 	expiration time.Duration   // 默认过期时间
 }
 
-// NewRedis 返回Redis实例
+// NewRedis 实例化
 func NewRedis(db *redis.Client, expiration time.Duration) *Redis {
-	return &Redis{
-		redis:      db,
-		ctx:        context.Background(),
-		expiration: expiration,
-	}
+	return &Redis{redis: db, ctx: context.Background(), expiration: expiration}
 }
 
 // Set 设置一个key的值
