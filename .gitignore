@@ -6,3 +6,5 @@
 *.log
 gomod.sh
 /vendor/
+redis_test.go
+memcached_test.go
