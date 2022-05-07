@@ -13,9 +13,14 @@ type RedisCache struct {
 	GetterInterface GttInterfaceFunc // 不存在的操作
 }
 
-// NewCache 返回Redis缓存实例
+// NewCache 实例化
 func (r *Redis) NewCache(expiration time.Duration) *RedisCache {
 	return &RedisCache{db: r, expiration: expiration}
+}
+
+// NewCacheDefaultExpiration 实例化
+func (r *Redis) NewCacheDefaultExpiration() *RedisCache {
+	return &RedisCache{db: r, expiration: r.expiration}
 }
 
 // GetString 缓存操作
