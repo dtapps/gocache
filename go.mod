@@ -1,4 +1,4 @@
-module github.com/dtapps/gocache
+module go.dtapp.net/gocache
 
 go 1.18
 
