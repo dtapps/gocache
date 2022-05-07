@@ -2,6 +2,7 @@ package gocache
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
@@ -45,14 +46,36 @@ func (r *Redis) Set(key string, value interface{}, expiration time.Duration) (st
 	return r.db.Set(r.ctx, key, value, expiration).Result()
 }
 
+// SetInterface 设置一个key的值
+func (r *Redis) SetInterface(key string, value interface{}, expiration time.Duration) (string, error) {
+	marshal, _ := json.Marshal(value)
+	return r.db.Set(r.ctx, key, marshal, expiration).Result()
+}
+
 // SetDefaultExpiration 设置一个key的值，使用全局默认过期时间
 func (r *Redis) SetDefaultExpiration(key string, value interface{}) (string, error) {
 	return r.db.Set(r.ctx, key, value, r.expiration).Result()
 }
 
+// SetInterfaceDefaultExpiration 设置一个key的值，使用全局默认过期时间
+func (r *Redis) SetInterfaceDefaultExpiration(key string, value interface{}) (string, error) {
+	marshal, _ := json.Marshal(value)
+	return r.db.Set(r.ctx, key, marshal, r.expiration).Result()
+}
+
 // Get 查询key的值
 func (r *Redis) Get(key string) (string, error) {
 	return r.db.Get(r.ctx, key).Result()
+}
+
+// GetInterface 查询key的值
+func (r *Redis) GetInterface(key string, result interface{}) error {
+	ret, err := r.db.Get(r.ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(ret), result)
+	return nil
 }
 
 // GetSet 设置一个key的值，并返回这个key的旧值
