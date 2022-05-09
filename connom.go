@@ -2,7 +2,7 @@ package gocache
 
 import "time"
 
-const Version = "1.0.3"
+const Version = "1.0.4"
 
 var (
 	DefaultExpiration = time.Minute * 30 // 默认过期时间
