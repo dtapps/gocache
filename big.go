@@ -7,16 +7,23 @@ import (
 	"time"
 )
 
+// BigConfig 配置
+type BigConfig struct {
+	DefaultExpiration time.Duration // 默认过期时间
+}
+
 // Big https://github.com/allegro/bigcache
 type Big struct {
-	db         *bigcache.BigCache // 驱动
-	expiration time.Duration      // 默认过期时间
+	BigConfig
+	db *bigcache.BigCache // 驱动
 }
 
 // NewBig 实例化
-func NewBig(expiration time.Duration) *Big {
-	c, _ := bigcache.NewBigCache(bigcache.DefaultConfig(expiration))
-	return &Big{db: c, expiration: expiration}
+func NewBig(config *BigConfig) *Big {
+	b := &Big{}
+	b.DefaultExpiration = config.DefaultExpiration
+	b.db, _ = bigcache.NewBigCache(bigcache.DefaultConfig(b.DefaultExpiration))
+	return b
 }
 
 // Set 插入数据 将只显示给定结构的导出字段 序列化并存储

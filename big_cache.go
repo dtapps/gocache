@@ -10,7 +10,7 @@ type BigCache struct {
 	GetterInterface GttInterfaceFunc // 不存在的操作
 }
 
-// NewCache 实例化
+// NewCache 实例化组件
 func (b *Big) NewCache() *BigCache {
 	return &BigCache{db: b}
 }
