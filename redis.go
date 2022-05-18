@@ -9,36 +9,48 @@ import (
 	"time"
 )
 
+// RedisConfig 配置
+type RedisConfig struct {
+	Addr              string        // 地址，可选
+	Password          string        // 密码，可选
+	DbName            int           // 数据库，可选
+	DefaultExpiration time.Duration // 默认过期时间
+	Db                *redis.Client // 驱动，可选
+}
+
 // Redis https://github.com/go-redis/redis
 type Redis struct {
-	db         *redis.Client   // 驱动
-	ctx        context.Context // 上下文内容
-	expiration time.Duration   // 默认过期时间
+	RedisConfig
+	db  *redis.Client   // 驱动
+	ctx context.Context // 上下文内容
 }
 
 // NewRedis 实例化
-func NewRedis(addr, password string, dbName int, expiration time.Duration) *Redis {
-	db := redis.NewClient(&redis.Options{
-		Addr:     addr,     // 地址
-		Password: password, // 密码
-		DB:       dbName,   // 数据库
-		PoolSize: 100,      // 连接池大小
-	})
+func NewRedis(config *RedisConfig) *Redis {
+	app := &Redis{}
+	app.DefaultExpiration = config.DefaultExpiration
+	app.ctx = context.Background()
+	if config.Addr == "" {
+		app.db = config.Db
+		return app
+	} else {
+		app.db = redis.NewClient(&redis.Options{
+			Addr:     config.Addr,     // 地址
+			Password: config.Password, // 密码
+			DB:       config.DbName,   // 数据库
+			PoolSize: 100,             // 连接池大小
+		})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
 
-	_, err := db.Ping(ctx).Result()
-	if err != nil {
-		panic(errors.New(fmt.Sprintf("连接失败，%s", err.Error())))
+		_, err := app.db.Ping(ctx).Result()
+		if err != nil {
+			panic(errors.New(fmt.Sprintf("连接失败，%s", err.Error())))
+		}
+
+		return app
 	}
-
-	return &Redis{db: db, ctx: context.Background(), expiration: expiration}
-}
-
-// NewRedisDb 实例化
-func NewRedisDb(db *redis.Client, expiration time.Duration) *Redis {
-	return &Redis{db: db, ctx: context.Background(), expiration: expiration}
 }
 
 // Set 设置一个key的值
@@ -54,13 +66,13 @@ func (r *Redis) SetInterface(key string, value interface{}, expiration time.Dura
 
 // SetDefaultExpiration 设置一个key的值，使用全局默认过期时间
 func (r *Redis) SetDefaultExpiration(key string, value interface{}) (string, error) {
-	return r.db.Set(r.ctx, key, value, r.expiration).Result()
+	return r.db.Set(r.ctx, key, value, r.DefaultExpiration).Result()
 }
 
 // SetInterfaceDefaultExpiration 设置一个key的值，使用全局默认过期时间
 func (r *Redis) SetInterfaceDefaultExpiration(key string, value interface{}) (string, error) {
 	marshal, _ := json.Marshal(value)
-	return r.db.Set(r.ctx, key, marshal, r.expiration).Result()
+	return r.db.Set(r.ctx, key, marshal, r.DefaultExpiration).Result()
 }
 
 // Get 查询key的值
@@ -90,7 +102,7 @@ func (r *Redis) SetNX(key string, value interface{}, expiration time.Duration) e
 
 // SetNXDefaultExpiration 如果key不存在，则设置这个key的值，使用全局默认过期时间
 func (r *Redis) SetNXDefaultExpiration(key string, value interface{}) error {
-	return r.db.SetNX(r.ctx, key, value, r.expiration).Err()
+	return r.db.SetNX(r.ctx, key, value, r.DefaultExpiration).Err()
 }
 
 // MGet 批量查询key的值

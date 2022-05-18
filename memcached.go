@@ -4,23 +4,28 @@ import (
 	"github.com/bradfitz/gomemcache/memcache"
 )
 
+// MemcachedConfig 配置
+type MemcachedConfig struct {
+	Dns string           // 连接地址，可选
+	Db  *memcache.Client // 驱动，可选
+}
+
 // Memcached https://github.com/bradfitz/gomemcache
 type Memcached struct {
 	db *memcache.Client // 驱动
 }
 
 // NewMemcached 实例化
-func NewMemcached(dns string) *Memcached {
-	mc := memcache.New(dns)
-	if mc == nil {
-		panic("连接失败")
+func NewMemcached(config *MemcachedConfig) *Memcached {
+	if config.Dns == "" {
+		return &Memcached{db: config.Db}
+	} else {
+		mc := memcache.New(config.Dns)
+		if mc == nil {
+			panic("连接失败")
+		}
+		return &Memcached{db: mc}
 	}
-	return &Memcached{db: mc}
-}
-
-// NewMemcachedDb 实例化
-func NewMemcachedDb(memcached *memcache.Client) *Memcached {
-	return &Memcached{db: memcached}
 }
 
 // Set 插入数据

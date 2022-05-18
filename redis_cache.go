@@ -5,22 +5,33 @@ import (
 	"time"
 )
 
+// RedisCacheConfig 配置
+type RedisCacheConfig struct {
+	expiration time.Duration // 过期时间
+}
+
 // RedisCache https://github.com/go-redis/redis
 type RedisCache struct {
+	RedisCacheConfig
 	db              *Redis           // 驱动
-	expiration      time.Duration    // 默认过期时间
 	GetterString    GttStringFunc    // 不存在的操作
 	GetterInterface GttInterfaceFunc // 不存在的操作
 }
 
 // NewCache 实例化
-func (r *Redis) NewCache(expiration time.Duration) *RedisCache {
-	return &RedisCache{db: r, expiration: expiration}
+func (r *Redis) NewCache(config *RedisCacheConfig) *RedisCache {
+	app := &RedisCache{}
+	app.expiration = config.expiration
+	app.db = r
+	return app
 }
 
 // NewCacheDefaultExpiration 实例化
 func (r *Redis) NewCacheDefaultExpiration() *RedisCache {
-	return &RedisCache{db: r, expiration: r.expiration}
+	app := &RedisCache{}
+	app.expiration = r.DefaultExpiration
+	app.db = r
+	return app
 }
 
 // GetString 缓存操作
