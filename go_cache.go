@@ -4,16 +4,24 @@ import (
 	"time"
 )
 
+// GoCacheConfig 配置
+type GoCacheConfig struct {
+	expiration time.Duration // 过期时间
+}
+
 // GoCache https://github.com/patrickmn/go-cache
 type GoCache struct {
+	GoCacheConfig
 	db              *Go              // 驱动
-	expiration      time.Duration    // 默认过期时间
 	GetterInterface GttInterfaceFunc // 不存在的操作
 }
 
 // NewCache 实例化
-func (g *Go) NewCache(expiration time.Duration) *GoCache {
-	return &GoCache{db: g, expiration: expiration}
+func (c *Go) NewCache(config *GoCacheConfig) *GoCache {
+	app := &GoCache{}
+	app.expiration = config.expiration
+	app.db = c
+	return app
 }
 
 // GetInterface 缓存操作

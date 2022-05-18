@@ -11,8 +11,8 @@ type BigCache struct {
 }
 
 // NewCache 实例化组件
-func (b *Big) NewCache() *BigCache {
-	return &BigCache{db: b}
+func (c *Big) NewCache() *BigCache {
+	return &BigCache{db: c}
 }
 
 // GetInterface 缓存操作

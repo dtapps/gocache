@@ -5,9 +5,16 @@ import (
 	"time"
 )
 
+func logGo() *Go {
+	return NewGo(&GoConfig{
+		DefaultExpiration: time.Minute * 5,
+		DefaultClear:      time.Minute * 10,
+	})
+}
+
 func TestGo(t *testing.T) {
 
-	newCache := NewGo(5*time.Minute, 10*time.Minute)
+	newCache := logGo()
 
 	// 字符串
 	newCache.SetDefault("key1", "测试Go插入数据 1")
@@ -24,7 +31,7 @@ func TestGo(t *testing.T) {
 	t.Logf("key2：%+v", key2.(name))
 
 	// 缓存组件
-	newCacheCache := newCache.NewCache(5 * time.Minute)
+	newCacheCache := newCache.NewCache(&GoCacheConfig{expiration: 5 * time.Minute})
 	newCacheCache.GetterInterface = func() interface{} {
 		return name{"测试Go插入数据 3"}
 	}

@@ -5,30 +5,38 @@ import (
 	"time"
 )
 
+// GoConfig 配置
+type GoConfig struct {
+	DefaultExpiration time.Duration // 默认过期时间
+	DefaultClear      time.Duration // 清理过期数据
+}
+
 // Go https://github.com/patrickmn/go-cache
 type Go struct {
-	db         *cache.Cache  // 驱动
-	expiration time.Duration // 默认过期时间
-	clear      time.Duration // 清理过期数据
+	GoConfig
+	db *cache.Cache // 驱动
 }
 
 // NewGo 实例化
-func NewGo(expiration, clear time.Duration) *Go {
-	c := cache.New(expiration, clear)
-	return &Go{db: c, expiration: expiration, clear: clear}
+func NewGo(config *GoConfig) *Go {
+	app := &Go{}
+	app.DefaultExpiration = config.DefaultExpiration
+	app.DefaultClear = config.DefaultClear
+	app.db = cache.New(app.DefaultExpiration, app.DefaultClear)
+	return app
 }
 
 // Set 插入数据 并设置过期时间
-func (g *Go) Set(key string, value interface{}, expirationTime time.Duration) {
-	g.db.Set(key, value, expirationTime)
+func (c *Go) Set(key string, value interface{}, expirationTime time.Duration) {
+	c.db.Set(key, value, expirationTime)
 }
 
 // Get 获取单个数据
-func (g *Go) Get(key string) (interface{}, bool) {
-	return g.db.Get(key)
+func (c *Go) Get(key string) (interface{}, bool) {
+	return c.db.Get(key)
 }
 
 // SetDefault 插入数据 并设置为默认过期时间
-func (g *Go) SetDefault(key string, value interface{}) {
-	g.db.Set(key, value, g.expiration)
+func (c *Go) SetDefault(key string, value interface{}) {
+	c.db.Set(key, value, c.DefaultExpiration)
 }
